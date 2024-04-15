@@ -17,7 +17,10 @@ leptos_actix = { version = "0.6", optional = true }
 leptos_router = { version = "0.6", features = ["nightly"] }
 wasm-bindgen = "=0.2.92"
 serde = { version = "1.0.197", features = ["derive"] }
-llm = { git = "https://github.com/rustformers/llm.git", branch = "main", optional = true }
+rand = { version = "0.8.5", optional = true }
+dotenv = { version = "0.15.0", optional = true }
+cfg-if = "1.0.0"
+llm = "0.1.1"
 [features]
 csr = ["leptos/csr", "leptos_meta/csr", "leptos_router/csr"]
 hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate"]
@@ -26,10 +29,14 @@ ssr = [
   "dep:actix-web",
   "dep:leptos_actix",
   "leptos/ssr",
-  "dep:llm",
+  "dep:rand",
+  "dep:dotenv",
   "leptos_meta/ssr",
   "leptos_router/ssr",
 ]
+
+[profile.dev.package.ggml-sys]
+opt-level = 2
 
 # Defines a size-optimized profile for the WASM bundle in release mode
 [profile.wasm-release]
@@ -48,7 +55,7 @@ site-root = "target/site"
 # Defaults to pkg
 site-pkg-dir = "pkg"
 # [Optional] The source CSS file. If it ends with .sass or .scss then it will be compiled by dart-sass into CSS. The CSS is optimized by Lightning CSS before being written to <site-root>/<site-pkg>/app.css
-style-file = "style/main.scss"
+style-file = "style/main.css"
 # Assets source dir. All files found here will be copied and synchronized to site-root.
 # The assets-dir cannot have a sub directory with the same name/path as site-pkg-dir.
 #

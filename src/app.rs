@@ -1,8 +1,7 @@
 use leptos::*;
 use leptos_meta::*;
-use leptos_router::*;
 
-use crate::model::conversation::{Conversation, Message};
+use crate::{api::converse, components::chat_area::ChatArea, model::conversation::{Conversation, Message}};
 
 #[component]
 pub fn App() -> impl IntoView {
@@ -18,7 +17,32 @@ pub fn App() -> impl IntoView {
         set_conversation.update(move |c| {
             c.messages.push(user_message)
         });
-    })  
+        converse(conversation.get())
+    }); 
+    // create_effect essentially works like useEffect from react
+//  This is the ... message that will show up on the screen when the model is responding
+    create_effect(move |_| {
+        // triggers as soon as the user hits send and collects the message in the input  
+        if let Some(_) = send.input().get() {
+            let model_message = Message {
+                text: String::from("..."),
+                user: false,
+            };
+
+            set_conversation.update(move |c| {
+                c.messages.push(model_message);
+            })
+        }
+    });
+
+    create_effect(move |_| {
+        //  triggers whenever a response comes back from the server
+        if let Some(Ok(response)) = send.value().get() {
+            set_conversation.update(move |c| {
+                c.messages.last_mut().unwrap().text = response;
+            })
+        }
+    });
     view! {
         // injects a stylesheet into the document <head>
         // id=leptos means cargo-leptos will hot-reload this stylesheet
@@ -27,7 +51,7 @@ pub fn App() -> impl IntoView {
         // sets the document title
         <Title text="Rust AI"/>
         <ChatArea  conversation />
-        <TypeArea />
+        // <TypeArea />
     }
 }
 
